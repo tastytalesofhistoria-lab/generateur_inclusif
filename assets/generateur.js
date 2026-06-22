@@ -94,7 +94,7 @@ function before(text,off){
 }
 
 function afterWords(text,off,n){
-  var m=text.slice(off,off+160).toLowerCase().match(/[a-zà-öø-ÿ'’\-]+/g)||[];
+  var m=text.slice(off,off+170).toLowerCase().match(/[a-zà-öø-ÿ'’\-]+/g)||[];
   return m.slice(0,n||4)
 }
 
@@ -162,8 +162,8 @@ function humanCtx(text,off,w){
 }
 
 function adjBeforeHuman(text,off,w){
-  var a=afterWords(text,off+w.length,3);
-  var skip=new Set(["et","ou","de","d","du","des","la","le","les","un","une"]);
+  var a=afterWords(text,off+w.length,4);
+  var skip=new Set(["et","ou","de","d","du","des","la","le","les","un","une","li","à"]);
   for(var i=0;i<a.length;i++){
     if(skip.has(a[i]))continue;
     return humanWord(a[i])
@@ -171,12 +171,16 @@ function adjBeforeHuman(text,off,w){
   return false
 }
 
-function detBeforeHuman(text,off,w){
-  var l=w.toLowerCase();
-  if(l!=="un"&&l!=="une"&&l!=="tous"&&l!=="toutes")return false;
-
-  var a=afterWords(text,off+w.length,5);
-  var skip=new Set(["et","ou","de","d","du","des","la","le","les","un","une","jeune","ancien","ancienne","nouveau","nouvelle","vieux","vieil","vieille","petit","petite","grand","grande"]);
+function nextHumanAfter(text,off){
+  var a=afterWords(text,off,7);
+  var skip=new Set([
+    "et","ou","de","d","du","des","la","le","les","li","un","une",
+    "jeune","ancien","ancienne","anciens","anciennes",
+    "nouveau","nouvelle","nouvel","nouveaux","nouvelles",
+    "vieux","vieil","vieille","petit","petite","grand","grande",
+    "bon","bonne","mauvais","mauvaise","premier","première",
+    "dernier","dernière","simple","calme","célèbre","futur","future"
+  ]);
 
   for(var i=0;i<a.length;i++){
     if(skip.has(a[i]))continue;
@@ -184,6 +188,50 @@ function detBeforeHuman(text,off,w){
   }
 
   return false
+}
+
+function detBeforeHuman(text,off,w){
+  var l=w.toLowerCase();
+  if(l!=="un"&&l!=="une"&&l!=="tous"&&l!=="toutes")return false;
+  return nextHumanAfter(text,off+w.length)
+}
+
+function replaceNeutralDet(text,pattern,replacement){
+  return text.replace(pattern,function(match){
+    var off=arguments[arguments.length-2];
+    var full=arguments[arguments.length-1];
+
+    if(nextHumanAfter(full,off+match.length)){
+      return keepCase(match,replacement)
+    }
+
+    return match
+  })
+}
+
+function applyNeutralDeterminers(text){
+  if(!flags().neutral)return text;
+
+  text=replaceNeutralDet(text,/\bde\s+l['’]/gi,"de li ");
+  text=replaceNeutralDet(text,/\bde\s+la\s+/gi,"de li ");
+  text=replaceNeutralDet(text,/\bdu\s+/gi,"de li ");
+
+  text=replaceNeutralDet(text,/\bà\s+l['’]/gi,"à li ");
+  text=replaceNeutralDet(text,/\bà\s+la\s+/gi,"à li ");
+  text=replaceNeutralDet(text,/\bau\s+/gi,"à li ");
+
+  text=replaceNeutralDet(text,/\bl['’]/gi,"li ");
+  text=replaceNeutralDet(text,/\ble\s+/gi,"li ");
+  text=replaceNeutralDet(text,/\bla\s+/gi,"li ");
+
+  text=replaceNeutralDet(text,/\bun\s+/gi,"un·e ");
+  text=replaceNeutralDet(text,/\bune\s+/gi,"un·e ");
+
+  text=replaceNeutralDet(text,/\bce\s+/gi,"ce·tte ");
+  text=replaceNeutralDet(text,/\bcet\s+/gi,"ce·tte ");
+  text=replaceNeutralDet(text,/\bcette\s+/gi,"ce·tte ");
+
+  return text
 }
 
 function suffix(w,rules){
@@ -205,7 +253,7 @@ function transform(w,off,text){
   var pl=pluralCtx(text,off);
 
   if((l==="un"||l==="une")&&detBeforeHuman(text,off,w))return keepCase(w,"un·e");
-  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)||neutral))return keepCase(w,"toustes");
+  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)||neutral&&nextHumanAfter(text,off+w.length)))return keepCase(w,"toustes");
 
   if(w.length<3||noSuffix(w)||inclusiveAlready(text,off,w))return w;
 
@@ -216,26 +264,26 @@ function transform(w,off,text){
     if(hs&&!NO.has(l)&&!VERBS_NO.has(l))return hs
   }
 
-  if((ctx||adjHuman||neutral)&&ADJ.has(l))return keepCase(w,ADJ.get(l));
+  if((ctx||adjHuman)&&ADJ.has(l))return keepCase(w,ADJ.get(l));
 
-  if((ctx||adjHuman||neutral)&&l.endsWith("euses")){
+  if((ctx||adjHuman)&&l.endsWith("euses")){
     var sing=l.slice(0,-1);
     if(FEM_EUSE.has(sing))return keepCase(w,sing.slice(0,-4)+"eux·se·s")
   }
 
-  if((ctx||adjHuman||neutral)&&l.endsWith("euse")&&FEM_EUSE.has(l)){
+  if((ctx||adjHuman)&&l.endsWith("euse")&&FEM_EUSE.has(l)){
     return keepCase(w,l.slice(0,-4)+"eux·se")
   }
 
-  if((ctx||adjHuman||neutral)&&AMB[l]){
+  if((ctx||adjHuman)&&AMB[l]){
     return keepCase(w,AMB[l]+(pl?"·s":""))
   }
 
-  if((ctx||adjHuman||neutral)&&l.endsWith("eux")&&l.length>3){
+  if((ctx||adjHuman)&&l.endsWith("eux")&&l.length>3){
     return keepCase(w,l.slice(0,-3)+(pl?"eux·se·s":"eux·se"))
   }
 
-  if(ctx||neutral){
+  if(ctx){
     var s=suffix(w,SUF);
     return s||w
   }
@@ -256,6 +304,8 @@ function clean(text){
     .replace(/\bque iel\b/gi,"qu’iel")
     .replace(/\bsi iels\b/gi,"s’iels")
     .replace(/\bsi iel\b/gi,"s’iel")
+    .replace(/\bli\s+/g,"li ")
+    .replace(/\bLi\s+/g,"Li ")
 }
 
 function generate(){
@@ -263,6 +313,7 @@ function generate(){
 
   text=applyCompound(text);
   text=applyPronouns(text);
+  text=applyNeutralDeterminers(text);
   text=applySuffixes(text);
   text=clean(text);
 
