@@ -133,4 +133,38 @@ Ajouts principaux :
 - création de fichiers dédiés pour les pronoms, adjectifs, épicènes, exclusions et verbes protégés ;
 - nettoyage du `index.html`, devenu plus léger et plus lisible.
 
- 
+---
+
+## V1.9 — Mode Neutralité
+
+Ajout d’un mode global de neutralisation du texte.
+
+Ajouts principaux :
+
+- ajout d’une option `Neutralité` dans l’interface ;
+- activation automatique des conversions liées à `il` et `elle` lorsque la neutralité est cochée ;
+- activation des conversions pronominales étendues en mode neutralité ;
+- neutralisation des métiers, rôles et noms de personnes connus ;
+- neutralisation de certains adjectifs accordés ;
+- conservation des termes épicènes déjà neutres ;
+- maintien des protections pour éviter de transformer des objets ou des verbes à tort.
+
+---
+
+## V2.0 — Déterminants neutres
+
+Ajout d’une gestion des déterminants humains en mode neutralité.
+
+Ajouts principaux :
+
+- conversion de `le`, `la`, `l’` vers `li` devant les mots humains reconnus ;
+- conversion de `du`, `de la`, `de l’` vers `de li` devant les mots humains reconnus ;
+- conversion de `au`, `à la`, `à l’` vers `à li` devant les mots humains reconnus ;
+- conversion de `un` et `une` vers `un·e` devant les mots humains reconnus ;
+- conversion de `ce`, `cet`, `cette` vers `ce·tte` devant les mots humains reconnus ;
+- ajout d’une vérification contextuelle pour éviter de transformer les objets.
+
+Exemple :
+
+```txt
+Le journaliste calme parle à la directrice.
