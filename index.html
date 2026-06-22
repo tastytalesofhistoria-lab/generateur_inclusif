@@ -7,11 +7,37 @@
   <div class="inc-card">
     <h2>Générateur inclusif</h2>
 
-    <div class="inc-options">
-      <label><input type="checkbox" id="incIl" checked>Convertir il</label>
-      <label><input type="checkbox" id="incElle" checked>Convertir elle</label>
-      <label><input type="checkbox" id="incAllPronouns">Convertir tous les pronoms</label>
-      <label><input type="checkbox" id="incNeutral">Neutralité</label>
+    <div class="inc-optionsWrap">
+      <div class="inc-optionsHead">
+        <div class="inc-optionsTitle">Options</div>
+        <div class="inc-optionsHint">Ciblé ou global</div>
+      </div>
+
+      <div class="inc-options">
+        <label class="inc-opt">
+          <input type="checkbox" id="incIl" checked>
+          <span>Il → iel</span>
+        </label>
+
+        <label class="inc-opt">
+          <input type="checkbox" id="incElle" checked>
+          <span>Elle → iel</span>
+        </label>
+
+        <label class="inc-opt">
+          <input type="checkbox" id="incAllPronouns">
+          <span>Tous les pronoms</span>
+        </label>
+
+        <label class="inc-opt inc-optNeutral">
+          <input type="checkbox" id="incNeutral">
+          <span>Neutralité</span>
+        </label>
+      </div>
+
+      <div class="inc-dynamicDesc" id="incOptionDesc">
+        <strong>Conversion ciblée :</strong> les formes liées à il et elle seront inclusivisées.
+      </div>
     </div>
 
     <div class="inc-grid">
