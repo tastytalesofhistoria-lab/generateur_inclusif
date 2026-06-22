@@ -1,13 +1,44 @@
 #incGen{max-width:1000px;margin:30px auto;padding:20px;font-family:Arial,sans-serif;color:#f2efe8}
 #incGen *{box-sizing:border-box}
 #incGen .inc-card{padding:22px;background:#11130f;border:2px solid #000}
-#incGen h2{margin:0 0 16px;color:#d8c17e;font-size:22px;text-transform:uppercase;letter-spacing:1px}
-#incGen .inc-options{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;padding:10px;background:#080908;border:1px solid #403821}
-#incGen .inc-options label,#incGen .inc-grid label{color:#d8c17e;font-size:13px;text-transform:uppercase;letter-spacing:1px}
-#incGen .inc-options input{margin-right:6px}
+#incGen h2{margin:0 0 14px;color:#d8c17e;font-size:22px;text-transform:uppercase;letter-spacing:1px}
+
+#incGen .inc-optionsWrap{margin-bottom:16px;padding:10px;background:#080908;border:1px solid #403821}
+#incGen .inc-optionsHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+#incGen .inc-optionsTitle{color:#d8c17e;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+#incGen .inc-optionsHint{color:#8f8877;font-size:11px}
+
+#incGen .inc-options{display:flex;flex-wrap:wrap;gap:8px}
+#incGen .inc-opt{position:relative;display:inline-flex;align-items:center;min-height:34px;cursor:pointer}
+#incGen .inc-opt input{position:absolute;opacity:0;pointer-events:none}
+#incGen .inc-opt span{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:7px 11px;background:#050605;border:1px solid #403821;color:#c9c1ad;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;transition:.18s ease}
+#incGen .inc-opt span:before{content:"";width:11px;height:11px;background:#0d0f0c;border:1px solid #8e7b41;flex:0 0 auto}
+#incGen .inc-opt:hover span{border-color:#6e6139;color:#f2efe8}
+#incGen .inc-opt input:checked+span{border-color:#d8c17e;background:rgba(216,193,126,.08);color:#f2efe8}
+#incGen .inc-opt input:checked+span:before{background:#d8c17e;border-color:#d8c17e;box-shadow:inset 0 0 0 2px #11130f}
+
+#incGen .inc-optNeutral span{color:#d8c17e}
+#incGen .inc-optNeutral input:checked+span{background:linear-gradient(90deg,rgba(216,193,126,.16),rgba(216,193,126,.05))}
+#incGen .inc-dynamicDesc{margin-top:8px;min-height:16px;color:#9d947f;font-size:11px;line-height:1.35}
+#incGen .inc-dynamicDesc strong{color:#d8c17e;font-weight:700}
+
 #incGen .inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#incGen .inc-grid label{color:#d8c17e;font-size:13px;text-transform:uppercase;letter-spacing:1px}
 #incGen textarea{display:block;width:100%;min-height:380px;margin-top:8px;padding:14px;resize:vertical;background:#050605!important;border:1px solid #403821!important;color:#f2efe8!important;font:15px/1.6 Georgia,serif!important;white-space:pre-wrap;overflow:auto;scrollbar-gutter:stable}
+
 #incGen .inc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 #incGen button{cursor:pointer;padding:9px 18px;background:#d8c17e;border:2px solid #000;color:#111;font-weight:700;text-transform:uppercase;letter-spacing:1px}
 #incGen #incStatus{min-height:18px;margin-top:10px;color:#c9c1ad;font-size:13px}
-@media(max-width:760px){#incGen .inc-grid{grid-template-columns:1fr}}
+
+@media(max-width:760px){
+#incGen .inc-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+#incGen .inc-optionsHead{display:block}
+#incGen .inc-optionsHint{margin-top:4px}
+#incGen .inc-opt{flex:1 1 calc(50% - 8px)}
+#incGen .inc-opt span{width:100%;justify-content:flex-start}
+}
+@media(max-width:420px){
+#incGen .inc-opt{flex:1 1 100%}
+}
