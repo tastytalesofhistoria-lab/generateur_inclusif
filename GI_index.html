@@ -1,1 +1,109 @@
 
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Générateur inclusif</title><style>
+#incGen{max-width:1000px;margin:30px auto;padding:20px;font-family:Arial,sans-serif;color:#f2efe8}#incGen *{box-sizing:border-box}#incGen .inc-card{padding:22px;background:#11130f;border:2px solid #000}#incGen h2{margin:0 0 16px;color:#d8c17e;font-size:22px;text-transform:uppercase;letter-spacing:1px}#incGen .inc-options{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;padding:10px;background:#080908;border:1px solid #403821}#incGen .inc-options label,#incGen .inc-grid label{color:#d8c17e;font-size:13px;text-transform:uppercase;letter-spacing:1px}#incGen .inc-options input{margin-right:6px}#incGen .inc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}#incGen textarea{display:block;width:100%;min-height:380px;margin-top:8px;padding:14px;resize:vertical;background:#050605!important;border:1px solid #403821!important;color:#f2efe8!important;font:15px/1.6 Georgia,serif!important;white-space:pre-wrap;overflow:auto;scrollbar-gutter:stable}#incGen .inc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}#incGen button{cursor:pointer;padding:9px 18px;background:#d8c17e;border:2px solid #000;color:#111;font-weight:700;text-transform:uppercase;letter-spacing:1px}#incGen #incStatus{min-height:18px;margin-top:10px;color:#c9c1ad;font-size:13px}@media(max-width:760px){#incGen .inc-grid{grid-template-columns:1fr}}
+</style><div id="incGen"><div class="inc-card"><h2>Générateur inclusif</h2><div class="inc-options"><label><input type="checkbox" id="incIl" checked>Convertir il</label><label><input type="checkbox" id="incElle" checked>Convertir elle</label><label><input type="checkbox" id="incAllPronouns">Convertir tous les pronoms</label></div><div class="inc-grid"><label>Texte original<textarea id="incInput" placeholder="Tapez votre texte ici ou collez-le directement."></textarea></label><label>Texte inclusif<textarea id="incOutput" readonly></textarea></label></div><div class="inc-actions"><button type="button" id="incGenerate">Générer</button><button type="button" id="incCopy">Copier</button><button type="button" id="incClear">Vider</button></div><div id="incStatus"></div></div></div><script>
+(function(){
+var $=function(id){return document.getElementById(id)},P={subjectSingular:"iel",subjectPlural:"iels",tonicSingular:"ellui",tonicPlural:"elleux",possessiveMon:"maon",possessiveTon:"taon",possessiveSon:"saon"};
+var INC_SUB="iel|iels|ielle|ielles|ille|illes|ael|aels|aël|aëls|æl|æls|yel|yels|al|als|ol|ols|ul|uls|el|els".split("|");
+var IL=[
+["l'un de l'autre","l'un·e de l'autre"],["l’un de l’autre","l’un·e de l’autre"],["l'un","l'un·e"],["l’un","l’un·e"],
+["d'eux","d'{tonicPlural}"],["d’eux","d’{tonicPlural}"],["de eux","d'{tonicPlural}"],["à eux","à {tonicPlural}"],["de lui","d'{tonicSingular}"],["à lui","à {tonicSingular}"],
+["qu'ils","qu'{subjectPlural}"],["qu’ils","qu’{subjectPlural}"],["qu'il","qu'{subjectSingular}"],["qu’il","qu’{subjectSingular}"],
+["s'ils","s'{subjectPlural}"],["s’ils","s’{subjectPlural}"],["s'il","s'{subjectSingular}"],["s’il","s’{subjectSingular}"],
+["lorsqu'ils","lorsqu'{subjectPlural}"],["lorsqu’ils","lorsqu’{subjectPlural}"],["lorsqu'il","lorsqu'{subjectSingular}"],["lorsqu’il","lorsqu’{subjectSingular}"],
+["puisqu'ils","puisqu'{subjectPlural}"],["puisqu’ils","puisqu’{subjectPlural}"],["puisqu'il","puisqu'{subjectSingular}"],["puisqu’il","puisqu’{subjectSingular}"],
+["eux-mêmes","elleux-mêmes"],["lui-même","ellui-même"],["eux","{tonicPlural}"],["lui","{tonicSingular}"],
+["ceux-ci","celleux-ci"],["ceux-là","celleux-là"],["celui-ci","cellui-ci"],["celui-là","cellui-là"],["ceux","celleux"],["celui","cellui"],
+["ils","{subjectPlural}"],["il","{subjectSingular}"]];
+var ELLE=[
+["l'une de l'autre","l'un·e de l'autre"],["l’une de l’autre","l’un·e de l’autre"],["l'une","l'un·e"],["l’une","l’un·e"],
+["d'elles","d'{tonicPlural}"],["d’elles","d’{tonicPlural}"],["d'elle","d'{tonicSingular}"],["d’elle","d’{tonicSingular}"],["de elles","d'{tonicPlural}"],["de elle","d'{tonicSingular}"],["à elles","à {tonicPlural}"],["à elle","à {tonicSingular}"],
+["qu'elles","qu'{subjectPlural}"],["qu’elles","qu’{subjectPlural}"],["qu'elle","qu'{subjectSingular}"],["qu’elle","qu’{subjectSingular}"],
+["s'elles","s'{subjectPlural}"],["s’elles","s’{subjectPlural}"],["s'elle","s'{subjectSingular}"],["s’elle","s’{subjectSingular}"],
+["lorsqu'elles","lorsqu'{subjectPlural}"],["lorsqu’elles","lorsqu’{subjectPlural}"],["lorsqu'elle","lorsqu'{subjectSingular}"],["lorsqu’elle","lorsqu’{subjectSingular}"],
+["puisqu'elles","puisqu'{subjectPlural}"],["puisqu’elles","puisqu’{subjectPlural}"],["puisqu'elle","puisqu'{subjectSingular}"],["puisqu’elle","puisqu’{subjectSingular}"],
+["elles-mêmes","elleux-mêmes"],["elle-même","ellui-même"],["celles-ci","celleux-ci"],["celles-là","celleux-là"],["celle-ci","cellui-ci"],["celle-là","cellui-là"],["celles","celleux"],["celle","cellui"],
+["elles","{subjectPlural}"],["elle","{subjectSingular}"]];
+var EXTRA=[["mon","{possessiveMon}"],["ma","{possessiveMon}"],["ton","{possessiveTon}"],["ta","{possessiveTon}"],["son","{possessiveSon}"],["sa","{possessiveSon}"],["tous","toustes"],["toutes","toustes"],["chacun","chacun·e"],["chacune","chacun·e"],["aucun","aucun·e"],["aucune","aucun·e"],["certains","certain·e·s"],["certaines","certain·e·s"],["certain","certain·e"],["certaine","certain·e"],["quelqu'un","quelqu'un·e"],["quelqu’une","quelqu’un·e"],["quelqu'une","quelqu'un·e"]];
+var FEM_EUSE=new Set("heureuse|malheureuse|joyeuse|peureuse|curieuse|dangereuse|nerveuse|sérieuse|courageuse|amoureuse|envieuse|honteuse|fameuse|précieuse|furieuse|anxieuse|ambitieuse|malicieuse|silencieuse|soucieuse|nombreuse|mystérieuse|généreuse|orgueilleuse|paresseuse|jalouse".split("|"));
+var AMB={vieux:"vieux·ille",doux:"doux·ce",faux:"faux·sse",roux:"roux·sse",jaloux:"jaloux·se",gros:"gros·se",frais:"frais·che",épais:"épais·se",bas:"bas·se",gras:"gras·se",las:"las·se",mauvais:"mauvais·e",gris:"gris·e",assis:"assis·e",surpris:"surpris·e"};
+var ADJ=new Map();
+function A(out,forms){forms.split("|").forEach(function(w){ADJ.set(w,out)})}
+A("beau·elle","beau|bel|belle");A("beau·elle·s","beaux|belles");A("nouveau·elle","nouveau|nouvel|nouvelle");A("nouveau·elle·s","nouveaux|nouvelles");
+A("fou·lle","fou|fol|folle");A("fou·lle·s","fous|folles");A("mou·lle","mou|mol|molle");A("mou·lle·s","mous|molles");
+A("bon·ne","bon|bonne");A("bon·ne·s","bons|bonnes");A("gentil·le","gentil|gentille");A("gentil·le·s","gentils|gentilles");
+A("blanc·he","blanc|blanche");A("blanc·he·s","blancs|blanches");A("franc·he","franc|franche");A("franc·he·s","francs|franches");A("sec·he","sec|sèche");A("sec·he·s","secs|sèches");
+A("public·que","public|publique");A("public·que·s","publics|publiques");A("grec·que","grec|grecque");A("grec·que·s","grecs|grecques");A("turc·que","turc|turque");A("turc·que·s","turcs|turques");A("caduc·que","caduc|caduque");A("caduc·que·s","caducs|caduques");A("laïc·que","laïc|laïque");A("laïc·que·s","laïcs|laïques");
+A("long·ue","long|longue");A("long·ue·s","longs|longues");A("aigu·ë","aigu|aiguë|aigüe");A("aigu·ë·s","aigus|aiguës|aigües");A("ambigu·ë","ambigu|ambiguë|ambigüe");A("ambigu·ë·s","ambigus|ambiguës|ambigües");
+A("bénin·igne","bénin|bénigne");A("bénin·igne·s","bénins|bénignes");A("malin·igne","malin|maligne");A("malin·igne·s","malins|malignes");
+A("complet·ète","complet|complète");A("complet·ète·s","complets|complètes");A("concret·ète","concret|concrète");A("concret·ète·s","concrets|concrètes");A("discret·ète","discret|discrète");A("discret·ète·s","discrets|discrètes");A("inquiet·ète","inquiet|inquiète");A("inquiet·ète·s","inquiets|inquiètes");A("secret·ète","secret|secrète");A("secret·ète·s","secrets|secrètes");
+A("léger·ère","léger|légère");A("léger·ère·s","légers|légères");A("cher·ère","cher|chère");A("cher·ère·s","chers|chères");A("fier·ère","fier|fière");A("fier·ère·s","fiers|fières");A("dernier·ère","dernier|dernière");A("dernier·ère·s","derniers|dernières");A("premier·ère","premier|première");A("premier·ère·s","premiers|premières");A("entier·ère","entier|entière");A("entier·ère·s","entiers|entières");
+A("meilleur·e","meilleur|meilleure");A("meilleur·e·s","meilleurs|meilleures");A("majeur·e","majeur|majeure");A("majeur·e·s","majeurs|majeures");A("mineur·e","mineur|mineure");A("mineur·e·s","mineurs|mineures");
+A("mauvais·e","mauvaise");A("mauvais·e·s","mauvaises");A("gris·e","grise");A("gris·e·s","grises");A("assis·e","assise");A("assis·e·s","assises");A("surpris·e","surprise");A("surpris·e·s","surprises");A("perdu·e","perdu|perdue");A("perdu·e·s","perdus|perdues");A("ravi·e","ravi|ravie");A("ravi·e·s","ravis|ravies");
+A("doux·ce","douce");A("doux·ce·s","douces");A("faux·sse","fausse");A("faux·sse·s","fausses");A("roux·sse","rousse");A("roux·sse·s","rousses");A("gros·se","grosse");A("gros·se·s","grosses");A("frais·che","fraîche");A("frais·che·s","fraîches");A("épais·se","épaisse");A("épais·se·s","épaisses");A("bas·se","basse");A("bas·se·s","basses");A("gras·se","grasse");A("gras·se·s","grasses");A("las·se","lasse");A("las·se·s","lasses");
+var SUF=[
+["ennes","en·ne·s"],["ens","en·ne·s"],["enne","en·ne"],["en","en·ne"],["onnes","on·ne·s"],["ons","on·ne·s"],["onne","on·ne"],["on","on·ne"],["elles","el·le·s"],["els","el·le·s"],["elle","el·le"],["el","el·le"],["ettes","et·te·s"],["ets","et·te·s"],["ette","et·te"],["et","et·te"],["ères","er·ère·s"],["ers","er·ère·s"],["ère","er·ère"],["er","er·ère"],["ives","if·ve·s"],["ifs","if·ve·s"],["ive","if·ve"],["if","if·ve"],["entes","ent·e·s"],["ents","ent·e·s"],["ente","ent·e"],["ent","ent·e"],["antes","ant·e·s"],["ants","ant·e·s"],["ante","ant·e"],["ant","ant·e"],["ues","u·e·s"],["us","u·e·s"],["ue","u·e"],["u","u·e"],["ées","é·e·s"],["és","é·e·s"],["ée","é·e"],["é","é·e"]];
+function autoSet(str){var s=new Set();str.split("|").forEach(function(w){if(!w)return;s.add(w);if(!/[sxz]$/i.test(w))s.add(w+"s")});return s}
+var NO=autoSet("il|ils|elle|elles|lui|eux|celui|celle|ceux|celles|joyau|joyaux|noyau|noyaux|tuyau|tuyaux|boyau|boyaux|moteur|ordinateur|radiateur|aspirateur|réacteur|secteur|compteur|capteur|interrupteur|ascenseur|bonheur|malheur|chaleur|couleur|douleur|valeur|saveur|odeur|erreur|humeur|rumeur|fleur|heure|peur|coeur|cœur|papier|dossier|clavier|collier|familier|grenier|panier|cahier|escalier|quartier|chantier|avant|pendant|instant|moment|comment|maintenant|yeux|cheveux|feux|jeux|lieux|dieux|mieux|fils|bien|mal|rien|super|extra|top");
+var EPICENE=autoSet("adulte|aimable|agréable|apte|authentique|autonome|brave|calme|capable|célèbre|chic|complexe|conforme|convenable|coupable|crédible|digne|difficile|docile|drôle|efficace|égoïste|énergique|énorme|équitable|étrange|facile|faible|fidèle|fragile|frêle|habile|honnête|horrible|humble|identique|impossible|incapable|incroyable|indigne|inévitable|instable|intègre|jeune|juste|libre|logique|malade|marron|mince|moderne|neutre|orange|ordinaire|possible|pauvre|proche|propre|rare|riche|ridicule|rouge|sage|sauvage|sensible|simple|sincère|sévère|solide|solitaire|stable|sympathique|terrible|tranquille|triste|unique|utile|valable|véritable|visible|vivace|zen|artiste|architecte|bibliothécaire|collègue|comptable|dentiste|élève|enfant|fleuriste|graphiste|guide|journaliste|juge|libraire|membre|militaire|notaire|partenaire|photographe|pilote|psychologue|responsable|secrétaire|spécialiste|styliste|thérapeute|vétérinaire");
+var PERSON=new Map();
+function R(out,forms){forms.split("|").forEach(function(w){PERSON.set(w,out)})}
+R("étudiant·e","étudiant|étudiante");R("étudiant·e·s","étudiants|étudiantes");
+R("enseignant·e","enseignant|enseignante");R("enseignant·e·s","enseignants|enseignantes");
+R("arrivant·e","arrivant|arrivante");R("arrivant·e·s","arrivants|arrivantes");
+R("professeur·e","professeur|professeure");R("professeur·e·s","professeurs|professeures");
+R("directeur·ice","directeur|directrice");R("directeur·ice·s","directeurs|directrices");
+R("délégué·e","délégué|déléguée");R("délégué·e·s","délégués|déléguées");
+R("participant·e","participant|participante");R("participant·e·s","participants|participantes");
+R("organisateur·ice","organisateur|organisatrice");R("organisateur·ice·s","organisateurs|organisatrices");
+R("intervenant·e","intervenant|intervenante");R("intervenant·e·s","intervenants|intervenantes");
+R("utilisateur·ice","utilisateur|utilisatrice");R("utilisateur·ice·s","utilisateurs|utilisatrices");
+R("administrateur·ice","administrateur|administratrice");R("administrateur·ice·s","administrateurs|administratrices");
+R("modérateur·ice","modérateur|modératrice");R("modérateur·ice·s","modérateurs|modératrices");
+R("auteur·ice","auteur|autrice|auteure");R("auteur·ice·s","auteurs|autrices|auteures");
+R("acteur·ice","acteur|actrice");R("acteur·ice·s","acteurs|actrices");
+R("lecteur·ice","lecteur|lectrice");R("lecteur·ice·s","lecteurs|lectrices");
+R("joueur·euse","joueur|joueuse");R("joueur·euse·s","joueurs|joueuses");
+R("vendeur·euse","vendeur|vendeuse");R("vendeur·euse·s","vendeurs|vendeuses");
+R("acheteur·euse","acheteur|acheteuse");R("acheteur·euse·s","acheteurs|acheteuses");
+R("serveur·euse","serveur|serveuse");R("serveur·euse·s","serveurs|serveuses");
+R("soigneur·euse","soigneur|soigneuse");R("soigneur·euse·s","soigneurs|soigneuses");
+R("collectionneur·euse","collectionneur|collectionneuse");R("collectionneur·euse·s","collectionneurs|collectionneuses");
+R("cuisinier·ère","cuisinier|cuisinière");R("cuisinier·ère·s","cuisiniers|cuisinières");
+R("infirmier·ère","infirmier|infirmière");R("infirmier·ère·s","infirmiers|infirmières");
+R("réparateur·ice","réparateur|réparatrice");R("réparateur·ice·s","réparateurs|réparatrices");
+R("marchand·e","marchand|marchande");R("marchand·e·s","marchands|marchandes");
+R("habitant·e","habitant|habitante");R("habitant·e·s","habitants|habitantes");
+R("citoyen·ne","citoyen|citoyenne");R("citoyen·ne·s","citoyens|citoyennes");
+
+function resolve(v){return v.replace(/\{([^}]+)\}/g,function(m,k){return P[k]||m})}
+function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function keepCase(s,v){if(s===s.toUpperCase())return v.toUpperCase();return s.charAt(0)===s.charAt(0).toUpperCase()?v.charAt(0).toUpperCase()+v.slice(1):v}
+function flags(){var all=$("incAllPronouns").checked;return{il:all||$("incIl").checked,elle:all||$("incElle").checked,all:all}}
+function replaceExact(text,from,to){var r=new RegExp("(^|[^A-Za-zÀ-ÖØ-öø-ÿ0-9_·.\\-])("+esc(from)+")(?![A-Za-zÀ-ÖØ-öø-ÿ0-9_·\\-])","gi");return text.replace(r,function(m,p,w){return p+keepCase(w,resolve(to))})}
+function rules(){var f=flags(),a=[];if(f.il)a=a.concat(IL);if(f.elle)a=a.concat(ELLE);if(f.all)a=a.concat(EXTRA);return a.sort(function(x,y){return y[0].length-x[0].length})}
+function applyPronouns(text){rules().forEach(function(r){text=replaceExact(text,r[0],r[1])});return text}
+function applyCompound(text){var f=flags(),t=[];if(f.il)t.push("il","ils");if(f.elle)t.push("elle","elles");INC_SUB.forEach(function(inc){t.forEach(function(g){text=text.replace(new RegExp("\\b("+esc(inc)+")\\s+et\\s+"+esc(g)+"\\b","gi"),function(m,first){return keepCase(first,P.subjectPlural)});text=text.replace(new RegExp("\\b("+esc(g)+")\\s+et\\s+"+esc(inc)+"\\b","gi"),function(m,first){return keepCase(first,P.subjectPlural)})})});if(f.il&&f.elle){text=text.replace(/\bil\s+et\s+elle\b/gi,"iels").replace(/\belle\s+et\s+il\b/gi,"iels").replace(/\bils\s+et\s+elles\b/gi,"iels").replace(/\belles\s+et\s+ils\b/gi,"iels")}return text}
+function before(text,off){return(text.slice(Math.max(0,off-260),off).toLowerCase().split(/[\n\r.!?;:]/).pop()||"")}
+function pluralCtx(text,off){var b=before(text,off),pl="iels|elleux|toustes|sont|étaient|etaient|seront|furent|soient|deviennent|devinrent|restent|semblent|paraissent".split("|"),sg="iel|ellui|est|était|etait|sera|fut|soit|devient|devint|reste|semble|paraît|parait".split("|"),f=b.match(new RegExp("\\b("+pl.concat(sg).map(esc).join("|")+")\\b","gi"));return !!(f&&f.length&&pl.indexOf(f[f.length-1].toLowerCase())!==-1)}
+function incCtx(text,off){return /\b(iel|iels|ellui|elleux)\b/.test(before(text,off))}
+function agreeCtx(text,off){var b=before(text,off);if(!incCtx(text,off))return false;if(/\b(un|une|des|le|la|les|ce|cet|cette|ces|mon|ma|mes|ton|ta|tes|son|sa|ses)\s+$/i.test(b))return false;if(/(?:^|\s)(en|de|dans|pour|par|avec|sans|sous|sur|chez|vers|à|a|au|aux)\s+$/i.test(b))return false;if(/(?:^|\s)d['’]\s*$/i.test(b))return false;return /\b(est|sont|était|etaient|étaient|sera|seront|fut|furent|soit|soient|devient|deviennent|devint|devinrent|reste|restent|semble|semblent|paraît|parait|paraissent)\b(?:\s+[a-zà-öø-ÿ'’\-]+){0,10}\s*$/i.test(b)}
+function wordAfter(text,off,len){var m=text.slice(off+len).match(/^\s+([A-Za-zÀ-ÖØ-öø-ÿ]+(?:['’\-][A-Za-zÀ-ÖØ-öø-ÿ]+)*)/i);return m?m[1].toLowerCase():""}
+function wordBefore(text,off){var m=text.slice(Math.max(0,off-90),off).match(/([A-Za-zÀ-ÖØ-öø-ÿ]+(?:['’\-][A-Za-zÀ-ÖØ-öø-ÿ]+)*)\s*$/i);return m?m[1].toLowerCase():""}
+function containsPerson(b){var ok=false;PERSON.forEach(function(v,k){if(!ok&&new RegExp("(^|[^A-Za-zÀ-ÖØ-öø-ÿ0-9_·\\-])"+esc(k)+"(?=$|[^A-Za-zÀ-ÖØ-öø-ÿ0-9_·\\-])","i").test(b))ok=true});return ok}
+function nextPersonCtx(text,off,w){return PERSON.has(wordAfter(text,off,w.length))}
+function prevPersonCtx(text,off){return PERSON.has(wordBefore(text,off))}
+function personVerbCtx(text,off){var b=before(text,off),v="est|sont|était|etaient|étaient|sera|seront|fut|furent|soit|soient|devient|deviennent|devint|devinrent|reste|restent|semble|semblent|paraît|parait|paraissent";if(!new RegExp("\\b("+v+")\\b(?:\\s+[a-zà-öø-ÿ'’\\-]+){0,10}\\s*$","i").test(b))return false;return containsPerson(b)}
+function noSuffix(w){var l=w.toLowerCase();return l.indexOf("'")!==-1||l.indexOf("’")!==-1||l.endsWith("ment")||NO.has(l)||EPICENE.has(l)||(l.endsWith("s")&&(NO.has(l.slice(0,-1))||EPICENE.has(l.slice(0,-1))))}
+function inclusiveAlready(text,off,w){var b=text.charAt(off-1),a=text.charAt(off+w.length);return !!(b&&"·".indexOf(b)!==-1)||!!(a&&"·".indexOf(a)!==-1)}
+function suffix(w,rules){var l=w.toLowerCase();for(var i=0;i<rules.length;i++){var from=rules[i][0],to=rules[i][1];if(l.endsWith(from)&&l.length>from.length)return keepCase(w,l.slice(0,l.length-from.length)+to)}return null}
+function transform(w,off,text){var l=w.toLowerCase(),pl=pluralCtx(text,off),ctx=agreeCtx(text,off),nctx=nextPersonCtx(text,off,w),pvctx=prevPersonCtx(text,off),vbctx=personVerbCtx(text,off);if(w.length<3||inclusiveAlready(text,off,w))return w;if(PERSON.has(l))return keepCase(w,PERSON.get(l));if(noSuffix(w))return w;if(!(ctx||nctx||pvctx||vbctx))return w;if(ADJ.has(l))return keepCase(w,ADJ.get(l));if(l.endsWith("euses")){var sing=l.slice(0,-1);if(FEM_EUSE.has(sing))return keepCase(w,sing.slice(0,-4)+"eux·se·s")}if(l.endsWith("euse")&&FEM_EUSE.has(l))return keepCase(w,l.slice(0,-4)+"eux·se");if(AMB[l])return keepCase(w,AMB[l]+(pl?"·s":""));if(l.endsWith("eux")&&l.length>3)return keepCase(w,l.slice(0,-3)+(pl?"eux·se·s":"eux·se"));if(ctx||nctx){var s=suffix(w,SUF);return s||w}return w}
+function applySuffixes(text){return text.replace(/[A-Za-zÀ-ÖØ-öø-ÿ]+(?:['’\-][A-Za-zÀ-ÖØ-öø-ÿ]+)*/g,function(w,off,full){return transform(w,off,full)})}
+function clean(text){return text.replace(/\bde ellui\b/gi,"d’ellui").replace(/\bde elleux\b/gi,"d’elleux").replace(/\bd['’]ellui\b/gi,"d’ellui").replace(/\bd['’]elleux\b/gi,"d’elleux").replace(/\bque iels\b/gi,"qu’iels").replace(/\bque iel\b/gi,"qu’iel").replace(/\bsi iels\b/gi,"s’iels").replace(/\bsi iel\b/gi,"s’iel")}
+function generate(){var i=$("incInput"),o=$("incOutput"),im=i.scrollHeight-i.clientHeight,ratio=im>0?i.scrollTop/im:0,text=i.value;text=applyCompound(text);text=applyPronouns(text);text=applySuffixes(text);text=clean(text);o.value=text;requestAnimationFrame(function(){var om=o.scrollHeight-o.clientHeight;o.scrollTop=om*ratio});$("incStatus").textContent="Texte généré."}
+function copyOutput(){var o=$("incOutput");o.focus();o.select();if(navigator.clipboard){navigator.clipboard.writeText(o.value).then(function(){$("incStatus").textContent="Texte copié."})}else{document.execCommand("copy");$("incStatus").textContent="Texte copié."}}
+function clearAll(){$("incInput").value="";$("incOutput").value="";$("incStatus").textContent="Texte vidé."}
+var syncing=false;function syncScroll(a,b){if(syncing)return;syncing=true;var am=a.scrollHeight-a.clientHeight,bm=b.scrollHeight-b.clientHeight,ratio=am>0?a.scrollTop/am:0;b.scrollTop=bm*ratio;b.scrollLeft=a.scrollLeft;requestAnimationFrame(function(){syncing=false})}
+$("incGenerate").addEventListener("click",generate);$("incCopy").addEventListener("click",copyOutput);$("incClear").addEventListener("click",clearAll);$("incInput").addEventListener("input",generate);$("incIl").addEventListener("change",generate);$("incElle").addEventListener("change",generate);$("incAllPronouns").addEventListener("change",generate);$("incInput").addEventListener("scroll",function(){syncScroll($("incInput"),$("incOutput"))});$("incOutput").addEventListener("scroll",function(){syncScroll($("incOutput"),$("incInput"))});
+})();
+</script>
