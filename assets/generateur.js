@@ -36,8 +36,17 @@ fetchJSON("data/metiers-inclusive.json"),
 function resolve(v){return v.replace(/\{([^}]+)\}/g,function(m,k){return P[k]||m})}
 function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 function keepCase(s,v){if(s===s.toUpperCase())return v.toUpperCase();return s.charAt(0)===s.charAt(0).toUpperCase()?v.charAt(0).toUpperCase()+v.slice(1):v}
-function flags(){var all=$("incAllPronouns").checked;return{il:all||$("incIl").checked,elle:all||$("incElle").checked,all:all}}
+function flags(){
+  var all=$("incAllPronouns").checked;
+  var neutral=$("incNeutral")&&$("incNeutral").checked;
 
+  return{
+    il:all||neutral||$("incIl").checked,
+    elle:all||neutral||$("incElle").checked,
+    all:all||neutral,
+    neutral:neutral
+  };
+}
 function replaceExact(text,from,to){
   var r=new RegExp("(^|[^A-Za-zÀ-ÖØ-öø-ÿ0-9_·.\\-])("+esc(from)+")(?![A-Za-zÀ-ÖØ-öø-ÿ0-9_·\\-])","gi");
   return text.replace(r,function(m,p,w){return p+keepCase(w,resolve(to))})
