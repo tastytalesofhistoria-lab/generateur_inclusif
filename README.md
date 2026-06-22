@@ -149,7 +149,6 @@ Ajouts principaux :
 - ajout du bouton `Générer` ;
 - ajout du bouton `Copier` ;
 - ajout du bouton `Vider` ;
-- première intégration possible via iframe Forumactif.
 
 ---
 
@@ -190,13 +189,9 @@ Adaptation du générateur pour une utilisation sur Forumactif.
 Ajouts et corrections :
 
 - ajout de l’UTF-8 ;
-- nettoyage du HTML ;
-- réduction des styles globaux ;
+ - réduction des styles globaux ;
 - meilleure compatibilité avec les pages HTML Forumactif ;
-- iframe dédiée ;
-- ajustement de la hauteur d’affichage ;
-- amélioration du scroll entre les deux zones de texte.
-
+  
 ---
 
 ### V1.4 — Métiers, rôles et noms de personnes
@@ -207,8 +202,7 @@ Ajouts principaux :
 
 - prise en charge de métiers comme `acteur`, `directeur`, `professeur`, `vendeur`, `cuisinier` ;
 - ajout de noms de personnes comme `étudiant`, `participant`, `intervenant`, `invité`, `habitant` ;
-- début de conversion automatique des terminaisons humaines ;
-- correction de plusieurs formes au pluriel ;
+ - correction de plusieurs formes au pluriel ;
 - ajout d’une logique séparée pour éviter de traiter les objets comme des personnes.
 
 ---
@@ -222,8 +216,7 @@ Ajouts principaux :
 - création du fichier `metiers-inclusive.json` ;
 - chargement du dictionnaire via JavaScript ;
 - allègement du code principal ;
-- possibilité d’ajouter des métiers sans modifier toute la logique du générateur ;
-- meilleure organisation du projet pour GitHub Pages.
+ - meilleure organisation du projet pour GitHub Pages.
 
 ---
 
@@ -260,17 +253,6 @@ Corrections principales :
 ## Statut actuel
 
 Le générateur est fonctionnel, mais encore en amélioration.
-
-Les prochaines améliorations prévues peuvent inclure :
-
-- enrichissement du fichier `metiers-inclusive.json` ;
-- ajout de nouvelles exceptions grammaticales ;
-- meilleure détection des verbes ;
-- meilleure distinction entre noms de personnes, adjectifs et objets ;
-- amélioration de l’interface ;
-- ajout d’un système de tests avec exemples avant/après.
-
----
 
 ## Note finale
 
