@@ -31,6 +31,7 @@ Promise.all([
   generate();
 }).catch(function(){
   $("incStatus").textContent="Erreur : un fichier de données ne charge pas.";
+  updateOptionDesc();
 });
 
 function resolve(v){return v.replace(/\{([^}]+)\}/g,function(m,k){return P[k]||m})}
@@ -38,12 +39,12 @@ function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 function keepCase(s,v){if(s===s.toUpperCase())return v.toUpperCase();return s.charAt(0)===s.charAt(0).toUpperCase()?v.charAt(0).toUpperCase()+v.slice(1):v}
 
 function flags(){
-  var all=$("incAllPronouns").checked;
+  var all=$("incAllPronouns")&&$("incAllPronouns").checked;
   var neutral=$("incNeutral")&&$("incNeutral").checked;
 
   return{
-    il:all||neutral||$("incIl").checked,
-    elle:all||neutral||$("incElle").checked,
+    il:all||neutral||($("incIl")&&$("incIl").checked),
+    elle:all||neutral||($("incElle")&&$("incElle").checked),
     all:all||neutral,
     neutral:neutral
   }
@@ -253,7 +254,7 @@ function transform(w,off,text){
   var pl=pluralCtx(text,off);
 
   if((l==="un"||l==="une")&&detBeforeHuman(text,off,w))return keepCase(w,"un·e");
-  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)||neutral&&nextHumanAfter(text,off+w.length)))return keepCase(w,"toustes");
+  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)||(neutral&&nextHumanAfter(text,off+w.length))))return keepCase(w,"toustes");
 
   if(w.length<3||noSuffix(w)||inclusiveAlready(text,off,w))return w;
 
@@ -308,7 +309,46 @@ function clean(text){
     .replace(/\bLi\s+/g,"Li ")
 }
 
+function updateOptionDesc(){
+  var desc=$("incOptionDesc");
+  if(!desc)return;
+
+  var il=$("incIl")&&$("incIl").checked;
+  var elle=$("incElle")&&$("incElle").checked;
+  var all=$("incAllPronouns")&&$("incAllPronouns").checked;
+  var neutral=$("incNeutral")&&$("incNeutral").checked;
+
+  if(neutral){
+    desc.innerHTML="<strong>Neutralité active :</strong> pronoms, accords, métiers, noms de personnes et déterminants humains sont neutralisés.";
+    return;
+  }
+
+  if(all){
+    desc.innerHTML="<strong>Conversion étendue :</strong> pronoms, possessifs, indéfinis et formes générales sont inclusivisés.";
+    return;
+  }
+
+  if(il&&elle){
+    desc.innerHTML="<strong>Conversion ciblée :</strong> les formes liées à il et elle seront inclusivisées.";
+    return;
+  }
+
+  if(il&&!elle){
+    desc.innerHTML="<strong>Conversion ciblée :</strong> seules les formes liées à il seront inclusivisées.";
+    return;
+  }
+
+  if(!il&&elle){
+    desc.innerHTML="<strong>Conversion ciblée :</strong> seules les formes liées à elle seront inclusivisées.";
+    return;
+  }
+
+  desc.innerHTML="<strong>Aucune conversion active :</strong> le texte sera recopié sans transformation majeure.";
+}
+
 function generate(){
+  updateOptionDesc();
+
   var i=$("incInput"),o=$("incOutput"),im=i.scrollHeight-i.clientHeight,ratio=im>0?i.scrollTop/im:0,text=i.value;
 
   text=applyCompound(text);
@@ -343,7 +383,8 @@ function copyOutput(){
 function clearAll(){
   $("incInput").value="";
   $("incOutput").value="";
-  $("incStatus").textContent="Texte vidé."
+  $("incStatus").textContent="Texte vidé.";
+  updateOptionDesc();
 }
 
 var syncing=false;
@@ -360,14 +401,20 @@ function syncScroll(a,b){
   requestAnimationFrame(function(){syncing=false})
 }
 
+function optionChange(){
+  updateOptionDesc();
+  generate();
+}
+
 $("incGenerate").addEventListener("click",generate);
 $("incCopy").addEventListener("click",copyOutput);
 $("incClear").addEventListener("click",clearAll);
 $("incInput").addEventListener("input",generate);
-$("incIl").addEventListener("change",generate);
-$("incElle").addEventListener("change",generate);
-$("incAllPronouns").addEventListener("change",generate);
-$("incNeutral").addEventListener("change",generate);
+$("incIl").addEventListener("change",optionChange);
+$("incElle").addEventListener("change",optionChange);
+$("incAllPronouns").addEventListener("change",optionChange);
+$("incNeutral").addEventListener("change",optionChange);
 $("incInput").addEventListener("scroll",function(){syncScroll($("incInput"),$("incOutput"))});
 $("incOutput").addEventListener("scroll",function(){syncScroll($("incOutput"),$("incInput"))});
+updateOptionDesc();
 })();
