@@ -234,7 +234,63 @@ function applyNeutralDeterminers(text){
 
   return text
 }
+var FROZEN=[];
 
+function freezeMatch(match){
+  var key="⟦"+FROZEN.length+"⟧";
+  FROZEN.push(match);
+  return key;
+}
+
+function protectFixedExpressions(text){
+  FROZEN=[];
+
+  var patterns=[
+    /\bil\s+ne\s+faut(?:\s+pas)?\b/gi,
+    /\bil\s+faut\b/gi,
+
+    /\bil\s+n['’]y\s+a\b/gi,
+    /\bil\s+y\s+a\b/gi,
+
+    /\bil\s+ne\s+s['’]agit(?:\s+pas)?\b/gi,
+    /\bil\s+s['’]agit\b/gi,
+
+    /\bil\s+n['’]existe(?:\s+pas)?\b/gi,
+    /\bil\s+existe\b/gi,
+
+    /\bil\s+ne\s+reste(?:\s+pas)?\b/gi,
+    /\bil\s+reste\b/gi,
+
+    /\bil\s+semble\b/gi,
+    /\bil\s+para[iî]t\b/gi,
+    /\bil\s+vaut\s+mieux\b/gi,
+
+    /\bil\s+fait\s+(?:beau|bon|mauvais|froid|chaud|nuit|jour|sombre|clair)\b/gi,
+    /\bil\s+(?:pleut|neige|grêle|vente)\b/gi,
+
+    /\bil\s+est\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+serait\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+sera\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
+
+    /\btous\s+les\s+(?:jours|matins|midis|soirs|mois|ans|étés|hivers|printemps|automnes)\b/gi,
+    /\btoutes\s+les\s+(?:nuits|semaines|fois|années|saisons)\b/gi,
+
+    /\btous\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:jours|matins|midis|soirs|mois|ans)\b/gi,
+    /\btoutes\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:nuits|semaines|fois|années|saisons)\b/gi
+  ];
+
+  patterns.forEach(function(pattern){
+    text=text.replace(pattern,freezeMatch);
+  });
+
+  return text;
+}
+
+function restoreFixedExpressions(text){
+  return text.replace(/⟦(\d+)⟧/g,function(match,n){
+    return FROZEN[Number(n)]||match;
+  });
+}
 function suffix(w,rules){
   var l=w.toLowerCase();
   for(var i=0;i<rules.length;i++){
