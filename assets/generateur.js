@@ -60,26 +60,98 @@ function protectFixedExpressions(text){
   FROZEN=[];
 
   var patterns=[
-    /\bil\s+ne\s+faut(?:\s+pas)?\b/gi,
+    /\bil\s+ne\s+faut(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
     /\bil\s+faut\b/gi,
-    /\bil\s+n['’]y\s+a\b/gi,
+    /\bil\s+faudra\b/gi,
+    /\bil\s+faudrait\b/gi,
+    /\bil\s+fallait\b/gi,
+    /\bil\s+a\s+fallu\b/gi,
+    /\bil\s+avait\s+fallu\b/gi,
+    /\bil\s+aurait\s+fallu\b/gi,
+    /\bil\s+va\s+falloir\b/gi,
+
+    /\bil\s+n['’]y\s+a(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
     /\bil\s+y\s+a\b/gi,
-    /\bil\s+ne\s+s['’]agit(?:\s+pas)?\b/gi,
+    /\bil\s+y\s+avait\b/gi,
+    /\bil\s+y\s+aura\b/gi,
+    /\bil\s+y\s+aurait\b/gi,
+    /\bil\s+y\s+eut\b/gi,
+    /\bil\s+y\s+en\s+a\b/gi,
+    /\bil\s+n['’]y\s+en\s+a(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
+
+    /\bil\s+ne\s+s['’]agit(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
     /\bil\s+s['’]agit\b/gi,
-    /\bil\s+n['’]existe(?:\s+pas)?\b/gi,
+    /\bil\s+s['’]agissait\b/gi,
+    /\bil\s+s['’]agira\b/gi,
+    /\bil\s+s['’]agirait\b/gi,
+    /\bil\s+s['’]est\s+agi\b/gi,
+
+    /\bil\s+n['’]existe(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
     /\bil\s+existe\b/gi,
-    /\bil\s+ne\s+reste(?:\s+pas)?\b/gi,
+    /\bil\s+existait\b/gi,
+    /\bil\s+existera\b/gi,
+    /\bil\s+existerait\b/gi,
+
+    /\bil\s+ne\s+reste(?:\s+pas|\s+plus|\s+jamais)?\b/gi,
     /\bil\s+reste\b/gi,
+    /\bil\s+restait\b/gi,
+    /\bil\s+restera\b/gi,
+    /\bil\s+resterait\b/gi,
+    /\bil\s+manque\b/gi,
+    /\bil\s+manquait\b/gi,
+    /\bil\s+manquera\b/gi,
+    /\bil\s+suffit\b/gi,
+    /\bil\s+suffisait\b/gi,
+    /\bil\s+suffira\b/gi,
+    /\bil\s+suffirait\b/gi,
+
     /\bil\s+semble\b/gi,
+    /\bil\s+semblait\b/gi,
+    /\bil\s+semblera\b/gi,
+    /\bil\s+semblerait\b/gi,
     /\bil\s+para[iî]t\b/gi,
+    /\bil\s+paraissait\b/gi,
+    /\bil\s+para[iî]tra\b/gi,
+    /\bil\s+para[iî]trait\b/gi,
+    /\bil\s+convient\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+conviendrait\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+importe\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+importait\s+(?:de|d['’]|que|qu['’])/gi,
+
+    /\bil\s+arrive\s+que\b/gi,
+    /\bil\s+arrivait\s+que\b/gi,
+    /\bil\s+arrivera\s+que\b/gi,
+    /\bil\s+arriverait\s+que\b/gi,
+    /\bil\s+se\s+peut\s+que\b/gi,
+    /\bil\s+se\s+pourrait\s+que\b/gi,
     /\bil\s+vaut\s+mieux\b/gi,
-    /\bil\s+fait\s+(?:beau|bon|mauvais|froid|chaud|nuit|jour|sombre|clair)\b/gi,
-    /\bil\s+(?:pleut|neige|grêle|vente)\b/gi,
-    /\bil\s+est\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis|temps)\s+(?:de|d['’]|que|qu['’])/gi,
-    /\bil\s+serait\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
-    /\bil\s+sera\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+vaudrait\s+mieux\b/gi,
+
+    /\bil\s+fait\s+(?:beau|bon|mauvais|froid|chaud|doux|lourd|humide|sec|nuit|jour|sombre|clair)\b/gi,
+    /\bil\s+(?:pleut|pleuvait|pleuvra|pleuvrait)\b/gi,
+    /\bil\s+(?:neige|neigeait|neigera|neigerait)\b/gi,
+    /\bil\s+(?:grêle|grêlait|grêlera|grêlerait)\b/gi,
+    /\bil\s+(?:vente|ventait|ventera|venterait)\b/gi,
+    /\bil\s+(?:gèle|gelait|gèlera|gèlerait)\b/gi,
+    /\bil\s+(?:bruine|bruinait|bruinera|bruinerait)\b/gi,
+    /\bil\s+va\s+(?:pleuvoir|neiger|grêler|venter|geler|bruiner)\b/gi,
+
+    /\bil\s+est\s+(?:midi|minuit|tard|tôt|tot|temps)\b/gi,
+    /\bil\s+était\s+(?:midi|minuit|tard|tôt|tot|temps)\b/gi,
+    /\bil\s+sera\s+(?:midi|minuit|tard|tôt|tot|temps)\b/gi,
+    /\bil\s+est\s+\d+\s*h(?:eures?)?\b/gi,
+    /\bil\s+était\s+\d+\s*h(?:eures?)?\b/gi,
+    /\bil\s+sera\s+\d+\s*h(?:eures?)?\b/gi,
+    /\bil\s+était\s+une\s+fois\b/gi,
+
+    /\bil\s+est\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|conseillé|interdit|permis|important|essentiel|indispensable|normal|logique|rare|évident|clair|certain|vrai|faux|dommage|regrettable|étrange|curieux|difficile|facile|simple|compliqué|bon|mauvais|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+était\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|conseillé|interdit|permis|important|essentiel|indispensable|normal|logique|rare|évident|clair|certain|vrai|faux|dommage|regrettable|étrange|curieux|difficile|facile|simple|compliqué|bon|mauvais|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+serait\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|conseillé|interdit|permis|important|essentiel|indispensable|normal|logique|rare|évident|clair|certain|vrai|faux|dommage|regrettable|étrange|curieux|difficile|facile|simple|compliqué|bon|mauvais|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+sera\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|conseillé|interdit|permis|important|essentiel|indispensable|normal|logique|rare|évident|clair|certain|vrai|faux|dommage|regrettable|étrange|curieux|difficile|facile|simple|compliqué|bon|mauvais|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+
     /\btous\s+les\s+(?:jours|matins|midis|soirs|mois|ans|étés|hivers|printemps|automnes)\b/gi,
     /\btoutes\s+les\s+(?:nuits|semaines|fois|années|saisons)\b/gi,
+    /\btous\s+les\s+(?:lundis|mardis|mercredis|jeudis|vendredis|samedis|dimanches)\b/gi,
     /\btous\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:jours|matins|midis|soirs|mois|ans)\b/gi,
     /\btoutes\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:nuits|semaines|fois|années|saisons)\b/gi
   ];
@@ -106,7 +178,11 @@ function rules(){
   var f=flags(),a=[];
   if(f.il)a=a.concat(IL);
   if(f.elle)a=a.concat(ELLE);
-  if(f.all)a=a.concat(EXTRA);
+  if(f.all){
+    a=a.concat(EXTRA.filter(function(r){
+      return !/^(tous|toutes)$/i.test(r[0]);
+    }));
+  }
   return a.sort(function(x,y){return y[0].length-x[0].length})
 }
 
