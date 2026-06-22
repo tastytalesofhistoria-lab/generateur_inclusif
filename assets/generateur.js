@@ -6,7 +6,7 @@ function fetchJSON(url){return fetch(url).then(function(r){if(!r.ok)throw new Er
 function autoSet(base){var s=new Set();base.forEach(function(w){s.add(w);if(!/[sxz]$/i.test(w))s.add(w+"s")});return s}
 
 Promise.all([
-  fetchJSON("metiers-inclusive.json"),
+fetchJSON("data/metiers-inclusive.json"),
   fetchJSON("data/pronoms.json"),
   fetchJSON("data/adjectifs.json"),
   fetchJSON("data/epicenes.json"),
