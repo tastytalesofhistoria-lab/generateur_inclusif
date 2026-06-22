@@ -1,6 +1,7 @@
 (function(){
 var $=function(id){return document.getElementById(id)};
 var PEOPLE=new Map(),P={},INC_SUB=[],IL=[],ELLE=[],EXTRA=[],FEM_EUSE=new Set(),AMB={},ADJ=new Map(),SUF=[],HUMAN_SUFFIX=[],NO=new Set(),EPICENE=new Set(),VERBS_NO=new Set();
+var FROZEN=[];
 
 function fetchJSON(url){return fetch(url).then(function(r){if(!r.ok)throw new Error(url);return r.json()})}
 function autoSet(base){var s=new Set();base.forEach(function(w){s.add(w);if(!/[sxz]$/i.test(w))s.add(w+"s")});return s}
@@ -27,10 +28,10 @@ Promise.all([
   EPICENE=autoSet(files[3]||[]);
   NO=autoSet(files[4]||[]);
   VERBS_NO=new Set(files[5]||[]);
-  $("incStatus").textContent="Dictionnaires chargés.";
+  if($("incStatus"))$("incStatus").textContent="Dictionnaires chargés.";
   generate();
 }).catch(function(){
-  $("incStatus").textContent="Erreur : un fichier de données ne charge pas.";
+  if($("incStatus"))$("incStatus").textContent="Erreur : un fichier de données ne charge pas.";
   updateOptionDesc();
 });
 
@@ -41,13 +42,59 @@ function keepCase(s,v){if(s===s.toUpperCase())return v.toUpperCase();return s.ch
 function flags(){
   var all=$("incAllPronouns")&&$("incAllPronouns").checked;
   var neutral=$("incNeutral")&&$("incNeutral").checked;
-
   return{
     il:all||neutral||($("incIl")&&$("incIl").checked),
     elle:all||neutral||($("incElle")&&$("incElle").checked),
     all:all||neutral,
     neutral:neutral
   }
+}
+
+function freezeMatch(match){
+  var key="⟦"+FROZEN.length+"⟧";
+  FROZEN.push(match);
+  return key
+}
+
+function protectFixedExpressions(text){
+  FROZEN=[];
+
+  var patterns=[
+    /\bil\s+ne\s+faut(?:\s+pas)?\b/gi,
+    /\bil\s+faut\b/gi,
+    /\bil\s+n['’]y\s+a\b/gi,
+    /\bil\s+y\s+a\b/gi,
+    /\bil\s+ne\s+s['’]agit(?:\s+pas)?\b/gi,
+    /\bil\s+s['’]agit\b/gi,
+    /\bil\s+n['’]existe(?:\s+pas)?\b/gi,
+    /\bil\s+existe\b/gi,
+    /\bil\s+ne\s+reste(?:\s+pas)?\b/gi,
+    /\bil\s+reste\b/gi,
+    /\bil\s+semble\b/gi,
+    /\bil\s+para[iî]t\b/gi,
+    /\bil\s+vaut\s+mieux\b/gi,
+    /\bil\s+fait\s+(?:beau|bon|mauvais|froid|chaud|nuit|jour|sombre|clair)\b/gi,
+    /\bil\s+(?:pleut|neige|grêle|vente)\b/gi,
+    /\bil\s+est\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis|temps)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+serait\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\bil\s+sera\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
+    /\btous\s+les\s+(?:jours|matins|midis|soirs|mois|ans|étés|hivers|printemps|automnes)\b/gi,
+    /\btoutes\s+les\s+(?:nuits|semaines|fois|années|saisons)\b/gi,
+    /\btous\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:jours|matins|midis|soirs|mois|ans)\b/gi,
+    /\btoutes\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:nuits|semaines|fois|années|saisons)\b/gi
+  ];
+
+  patterns.forEach(function(pattern){
+    text=text.replace(pattern,freezeMatch)
+  });
+
+  return text
+}
+
+function restoreFixedExpressions(text){
+  return text.replace(/⟦(\d+)⟧/g,function(match,n){
+    return FROZEN[Number(n)]||match
+  })
 }
 
 function replaceExact(text,from,to){
@@ -234,63 +281,7 @@ function applyNeutralDeterminers(text){
 
   return text
 }
-var FROZEN=[];
 
-function freezeMatch(match){
-  var key="⟦"+FROZEN.length+"⟧";
-  FROZEN.push(match);
-  return key;
-}
-
-function protectFixedExpressions(text){
-  FROZEN=[];
-
-  var patterns=[
-    /\bil\s+ne\s+faut(?:\s+pas)?\b/gi,
-    /\bil\s+faut\b/gi,
-
-    /\bil\s+n['’]y\s+a\b/gi,
-    /\bil\s+y\s+a\b/gi,
-
-    /\bil\s+ne\s+s['’]agit(?:\s+pas)?\b/gi,
-    /\bil\s+s['’]agit\b/gi,
-
-    /\bil\s+n['’]existe(?:\s+pas)?\b/gi,
-    /\bil\s+existe\b/gi,
-
-    /\bil\s+ne\s+reste(?:\s+pas)?\b/gi,
-    /\bil\s+reste\b/gi,
-
-    /\bil\s+semble\b/gi,
-    /\bil\s+para[iî]t\b/gi,
-    /\bil\s+vaut\s+mieux\b/gi,
-
-    /\bil\s+fait\s+(?:beau|bon|mauvais|froid|chaud|nuit|jour|sombre|clair)\b/gi,
-    /\bil\s+(?:pleut|neige|grêle|vente)\b/gi,
-
-    /\bil\s+est\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis|temps)\s+(?:de|d['’]|que|qu['’])/gi,
-    /\bil\s+serait\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
-    /\bil\s+sera\s+(?:possible|impossible|nécessaire|utile|préférable|probable|recommandé|interdit|permis)\s+(?:de|d['’]|que|qu['’])/gi,
-
-    /\btous\s+les\s+(?:jours|matins|midis|soirs|mois|ans|étés|hivers|printemps|automnes)\b/gi,
-    /\btoutes\s+les\s+(?:nuits|semaines|fois|années|saisons)\b/gi,
-
-    /\btous\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:jours|matins|midis|soirs|mois|ans)\b/gi,
-    /\btoutes\s+les\s+(?:deux|trois|quatre|cinq|six|sept|huit|neuf|dix|\d+)\s+(?:nuits|semaines|fois|années|saisons)\b/gi
-  ];
-
-  patterns.forEach(function(pattern){
-    text=text.replace(pattern,freezeMatch);
-  });
-
-  return text;
-}
-
-function restoreFixedExpressions(text){
-  return text.replace(/⟦(\d+)⟧/g,function(match,n){
-    return FROZEN[Number(n)]||match;
-  });
-}
 function suffix(w,rules){
   var l=w.toLowerCase();
   for(var i=0;i<rules.length;i++){
@@ -376,42 +367,47 @@ function updateOptionDesc(){
 
   if(neutral){
     desc.innerHTML="<strong>Neutralité active :</strong> pronoms, accords, métiers, noms de personnes et déterminants humains sont neutralisés.";
-    return;
+    return
   }
 
   if(all){
     desc.innerHTML="<strong>Conversion étendue :</strong> pronoms, possessifs, indéfinis et formes générales sont inclusivisés.";
-    return;
+    return
   }
 
   if(il&&elle){
     desc.innerHTML="<strong>Conversion ciblée :</strong> les formes liées à il et elle seront inclusivisées.";
-    return;
+    return
   }
 
   if(il&&!elle){
     desc.innerHTML="<strong>Conversion ciblée :</strong> seules les formes liées à il seront inclusivisées.";
-    return;
+    return
   }
 
   if(!il&&elle){
     desc.innerHTML="<strong>Conversion ciblée :</strong> seules les formes liées à elle seront inclusivisées.";
-    return;
+    return
   }
 
-  desc.innerHTML="<strong>Aucune conversion active :</strong> le texte sera recopié sans transformation majeure.";
+  desc.innerHTML="<strong>Aucune conversion active :</strong> le texte sera recopié sans transformation majeure."
 }
 
 function generate(){
   updateOptionDesc();
 
-  var i=$("incInput"),o=$("incOutput"),im=i.scrollHeight-i.clientHeight,ratio=im>0?i.scrollTop/im:0,text=i.value;
+  var i=$("incInput"),o=$("incOutput");
+  if(!i||!o)return;
 
+  var im=i.scrollHeight-i.clientHeight,ratio=im>0?i.scrollTop/im:0,text=i.value;
+
+  text=protectFixedExpressions(text);
   text=applyCompound(text);
   text=applyPronouns(text);
   text=applyNeutralDeterminers(text);
   text=applySuffixes(text);
   text=clean(text);
+  text=restoreFixedExpressions(text);
 
   o.value=text;
 
@@ -420,33 +416,37 @@ function generate(){
     o.scrollTop=om*ratio
   });
 
-  $("incStatus").textContent="Texte généré."
+  if($("incStatus"))$("incStatus").textContent="Texte généré."
 }
 
 function copyOutput(){
   var o=$("incOutput");
+  if(!o)return;
+
   o.focus();
   o.select();
 
   if(navigator.clipboard){
-    navigator.clipboard.writeText(o.value).then(function(){$("incStatus").textContent="Texte copié."})
+    navigator.clipboard.writeText(o.value).then(function(){
+      if($("incStatus"))$("incStatus").textContent="Texte copié."
+    })
   }else{
     document.execCommand("copy");
-    $("incStatus").textContent="Texte copié."
+    if($("incStatus"))$("incStatus").textContent="Texte copié."
   }
 }
 
 function clearAll(){
-  $("incInput").value="";
-  $("incOutput").value="";
-  $("incStatus").textContent="Texte vidé.";
-  updateOptionDesc();
+  if($("incInput"))$("incInput").value="";
+  if($("incOutput"))$("incOutput").value="";
+  if($("incStatus"))$("incStatus").textContent="Texte vidé.";
+  updateOptionDesc()
 }
 
 var syncing=false;
 
 function syncScroll(a,b){
-  if(syncing)return;
+  if(syncing||!a||!b)return;
   syncing=true;
 
   var am=a.scrollHeight-a.clientHeight,bm=b.scrollHeight-b.clientHeight,ratio=am>0?a.scrollTop/am:0;
@@ -459,18 +459,24 @@ function syncScroll(a,b){
 
 function optionChange(){
   updateOptionDesc();
-  generate();
+  generate()
 }
 
-$("incGenerate").addEventListener("click",generate);
-$("incCopy").addEventListener("click",copyOutput);
-$("incClear").addEventListener("click",clearAll);
-$("incInput").addEventListener("input",generate);
-$("incIl").addEventListener("change",optionChange);
-$("incElle").addEventListener("change",optionChange);
-$("incAllPronouns").addEventListener("change",optionChange);
-$("incNeutral").addEventListener("change",optionChange);
-$("incInput").addEventListener("scroll",function(){syncScroll($("incInput"),$("incOutput"))});
-$("incOutput").addEventListener("scroll",function(){syncScroll($("incOutput"),$("incInput"))});
+function bind(id,event,fn){
+  var el=$(id);
+  if(el)el.addEventListener(event,fn)
+}
+
+bind("incGenerate","click",generate);
+bind("incCopy","click",copyOutput);
+bind("incClear","click",clearAll);
+bind("incInput","input",generate);
+bind("incIl","change",optionChange);
+bind("incElle","change",optionChange);
+bind("incAllPronouns","change",optionChange);
+bind("incNeutral","change",optionChange);
+bind("incInput","scroll",function(){syncScroll($("incInput"),$("incOutput"))});
+bind("incOutput","scroll",function(){syncScroll($("incOutput"),$("incInput"))});
+
 updateOptionDesc();
 })();
