@@ -30,7 +30,7 @@ Le générateur permet actuellement de :
 - accorder certains adjectifs ;
 - accorder certains noms de personnes, métiers, rôles et fonctions ;
 - protéger certains termes épicènes ;
-- charger une liste externe de métiers et fonctions via JSON ;
+- charger plusieurs dictionnaires externes en JSON ;
 - copier facilement le texte généré.
 
 ---
@@ -59,16 +59,34 @@ Pour intégrer le générateur sur Forumactif, utiliser cette iframe :
 
 ```txt
 generateur_inclusif/
+├─ README.md
+├─ CHANGELOG.md
 ├─ index.html
-├─ metiers-inclusive.json
-└─ README.md
+├─ assets/
+│  ├─ generateur.js
+│  └─ style.css
+└─ data/
+   ├─ adjectifs.json
+   ├─ epicenes.json
+   ├─ exclusions.json
+   ├─ metiers-inclusive.json
+   ├─ pronoms.json
+   └─ verbes-exclus.json
 ```
 
 ### `index.html`
 
-Contient l’interface du générateur, le HTML, le CSS et le JavaScript principal.
+Contient la structure HTML principale du générateur.
 
-### `metiers-inclusive.json`
+### `assets/style.css`
+
+Contient l’apparence du générateur.
+
+### `assets/generateur.js`
+
+Contient la logique principale du générateur.
+
+### `data/metiers-inclusive.json`
 
 Contient les correspondances pour les métiers, fonctions, rôles et noms de personnes.
 
@@ -83,9 +101,29 @@ Exemple :
 }
 ```
 
-### `README.md`
+### `data/pronoms.json`
 
-Présente le projet, son usage, ses limites et son historique de mises à jour.
+Contient les règles de conversion des pronoms.
+
+### `data/adjectifs.json`
+
+Contient des adjectifs irréguliers, des suffixes et des formes particulières.
+
+### `data/epicenes.json`
+
+Contient les mots épicènes à protéger.
+
+### `data/exclusions.json`
+
+Contient les mots à ne pas transformer.
+
+### `data/verbes-exclus.json`
+
+Contient les verbes à protéger pour éviter des accords incorrects.
+
+### `CHANGELOG.md`
+
+Contient l’historique des mises à jour du projet.
 
 ---
 
@@ -133,126 +171,23 @@ Il est possible de proposer :
 - des exemples de phrases problématiques ;
 - des améliorations du code ou de l’interface.
 
----
-
-## Log des mises à jour
-
-### V1.0 — Première version
-
-Première version publique du générateur.
-
-Ajouts principaux :
-
-- création de l’interface HTML/CSS ;
-- ajout d’une zone de texte original ;
-- ajout d’une zone de texte inclusif ;
-- ajout du bouton `Générer` ;
-- ajout du bouton `Copier` ;
-- ajout du bouton `Vider` ;
+Les discussions et issues du dépôt peuvent servir à signaler les bugs, proposer des mots ou suggérer des améliorations.
 
 ---
 
-### V1.1 — Pronoms inclusifs
+## Historique des mises à jour
 
-Ajout et amélioration des conversions de pronoms.
+Le journal des modifications est disponible ici :
 
-Ajouts principaux :
-
-- conversion de `il` vers `iel` ;
-- conversion de `ils` vers `iels` ;
-- conversion de `elle` vers `iel` ;
-- conversion de `elles` vers `iels` ;
-- conversion de formes comme `lui`, `eux`, `celle`, `celui`, `celles`, `ceux` ;
-- meilleure gestion de `qu’il`, `qu’ils`, `qu’elle`, `qu’elles` ;
-- ajout des options `Convertir il`, `Convertir elle` et `Convertir tous les pronoms`.
-
----
-
-### V1.2 — Accords simples
-
-Ajout des premiers accords inclusifs.
-
-Ajouts principaux :
-
-- accord de certains adjectifs ;
-- gestion du singulier et du pluriel ;
-- utilisation du point médian ;
-- premières exceptions pour les adjectifs irréguliers ;
-- correction des formes comme `fou / folle`, `heureux / heureuse`, `bon / bonne`, `gentil / gentille`.
-
----
-
-### V1.3 — Optimisation Forumactif
-
-Adaptation du générateur pour une utilisation sur Forumactif.
-
-Ajouts et corrections :
-
-- ajout de l’UTF-8 ;
- - réduction des styles globaux ;
-- meilleure compatibilité avec les pages HTML Forumactif ;
-  
----
-
-### V1.4 — Métiers, rôles et noms de personnes
-
-Ajout d’une gestion plus large des métiers et termes humains.
-
-Ajouts principaux :
-
-- prise en charge de métiers comme `acteur`, `directeur`, `professeur`, `vendeur`, `cuisinier` ;
-- ajout de noms de personnes comme `étudiant`, `participant`, `intervenant`, `invité`, `habitant` ;
- - correction de plusieurs formes au pluriel ;
-- ajout d’une logique séparée pour éviter de traiter les objets comme des personnes.
-
----
-
-### V1.5 — JSON externe
-
-Déplacement d’une partie des correspondances vers un fichier externe.
-
-Ajouts principaux :
-
-- création du fichier `metiers-inclusive.json` ;
-- chargement du dictionnaire via JavaScript ;
-- allègement du code principal ;
- - meilleure organisation du projet pour GitHub Pages.
-
----
-
-### V1.6 — Protection des épicènes
-
-Ajout d’une protection des termes épicènes.
-
-Ajouts et corrections :
-
-- protection de mots déjà neutres comme `digne`, `sincère`, `calme`, `libre`, `utile`, `jeune`, `responsable` ;
-- protection de certains noms épicènes comme `journaliste`, `photographe`, `collègue`, `membre`, `artiste` ;
-- gestion du pluriel des épicènes ;
-- retrait de faux épicènes qui devaient encore être accordés ;
-- réduction des accords abusifs sur certains mots.
-
----
-
-### V1.7 — Corrections d’accords et bugs
-
-Corrections liées aux tests utilisateurs.
-
-Corrections principales :
-
-- amélioration des accords au pluriel ;
-- correction de mots qui ne s’accordaient plus ;
-- correction de certains métiers restant au masculin ;
-- amélioration des terminaisons inclusives ;
-- limitation des transformations sur les verbes ;
-- ajout d’exceptions pour éviter des formes incorrectes comme des verbes accordés à tort ;
-- amélioration progressive du comportement sur les textes longs.
+[Consulter le changelog](CHANGELOG.md)
 
 ---
 
 ## Statut actuel
 
 Le générateur est fonctionnel, mais encore en amélioration.
+
+---
 
 ## Note finale
 
