@@ -6,7 +6,7 @@ function fetchJSON(url){return fetch(url).then(function(r){if(!r.ok)throw new Er
 function autoSet(base){var s=new Set();base.forEach(function(w){s.add(w);if(!/[sxz]$/i.test(w))s.add(w+"s")});return s}
 
 Promise.all([
-fetchJSON("data/metiers-inclusive.json"),
+  fetchJSON("data/metiers-inclusive.json"),
   fetchJSON("data/pronoms.json"),
   fetchJSON("data/adjectifs.json"),
   fetchJSON("data/epicenes.json"),
@@ -36,6 +36,7 @@ fetchJSON("data/metiers-inclusive.json"),
 function resolve(v){return v.replace(/\{([^}]+)\}/g,function(m,k){return P[k]||m})}
 function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 function keepCase(s,v){if(s===s.toUpperCase())return v.toUpperCase();return s.charAt(0)===s.charAt(0).toUpperCase()?v.charAt(0).toUpperCase()+v.slice(1):v}
+
 function flags(){
   var all=$("incAllPronouns").checked;
   var neutral=$("incNeutral")&&$("incNeutral").checked;
@@ -45,8 +46,9 @@ function flags(){
     elle:all||neutral||$("incElle").checked,
     all:all||neutral,
     neutral:neutral
-  };
+  }
 }
+
 function replaceExact(text,from,to){
   var r=new RegExp("(^|[^A-Za-zÀ-ÖØ-öø-ÿ0-9_·.\\-])("+esc(from)+")(?![A-Za-zÀ-ÖØ-öø-ÿ0-9_·\\-])","gi");
   return text.replace(r,function(m,p,w){return p+keepCase(w,resolve(to))})
@@ -194,10 +196,16 @@ function suffix(w,rules){
 }
 
 function transform(w,off,text){
-  var l=w.toLowerCase(),ctx=agreeCtx(text,off),adjHuman=adjBeforeHuman(text,off,w),hctx=humanCtx(text,off,w),pl=pluralCtx(text,off);
+  var l=w.toLowerCase();
+  var f=flags();
+  var neutral=f.neutral;
+  var ctx=agreeCtx(text,off);
+  var adjHuman=adjBeforeHuman(text,off,w);
+  var hctx=humanCtx(text,off,w);
+  var pl=pluralCtx(text,off);
 
   if((l==="un"||l==="une")&&detBeforeHuman(text,off,w))return keepCase(w,"un·e");
-  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)))return keepCase(w,"toustes");
+  if((l==="tous"||l==="toutes")&&(ctx||detBeforeHuman(text,off,w)||neutral))return keepCase(w,"toustes");
 
   if(w.length<3||noSuffix(w)||inclusiveAlready(text,off,w))return w;
 
@@ -205,21 +213,29 @@ function transform(w,off,text){
 
   if(hctx){
     var hs=humanSuffix(w);
-    if(hs)return hs
+    if(hs&&!NO.has(l)&&!VERBS_NO.has(l))return hs
   }
 
-  if((ctx||adjHuman)&&ADJ.has(l))return keepCase(w,ADJ.get(l));
+  if((ctx||adjHuman||neutral)&&ADJ.has(l))return keepCase(w,ADJ.get(l));
 
-  if((ctx||adjHuman)&&l.endsWith("euses")){
+  if((ctx||adjHuman||neutral)&&l.endsWith("euses")){
     var sing=l.slice(0,-1);
     if(FEM_EUSE.has(sing))return keepCase(w,sing.slice(0,-4)+"eux·se·s")
   }
 
-  if((ctx||adjHuman)&&l.endsWith("euse")&&FEM_EUSE.has(l))return keepCase(w,l.slice(0,-4)+"eux·se");
-  if((ctx||adjHuman)&&AMB[l])return keepCase(w,AMB[l]+(pl?"·s":""));
-  if((ctx||adjHuman)&&l.endsWith("eux")&&l.length>3)return keepCase(w,l.slice(0,-3)+(pl?"eux·se·s":"eux·se"));
+  if((ctx||adjHuman||neutral)&&l.endsWith("euse")&&FEM_EUSE.has(l)){
+    return keepCase(w,l.slice(0,-4)+"eux·se")
+  }
 
-  if(ctx){
+  if((ctx||adjHuman||neutral)&&AMB[l]){
+    return keepCase(w,AMB[l]+(pl?"·s":""))
+  }
+
+  if((ctx||adjHuman||neutral)&&l.endsWith("eux")&&l.length>3){
+    return keepCase(w,l.slice(0,-3)+(pl?"eux·se·s":"eux·se"))
+  }
+
+  if(ctx||neutral){
     var s=suffix(w,SUF);
     return s||w
   }
@@ -300,6 +316,7 @@ $("incInput").addEventListener("input",generate);
 $("incIl").addEventListener("change",generate);
 $("incElle").addEventListener("change",generate);
 $("incAllPronouns").addEventListener("change",generate);
+$("incNeutral").addEventListener("change",generate);
 $("incInput").addEventListener("scroll",function(){syncScroll($("incInput"),$("incOutput"))});
 $("incOutput").addEventListener("scroll",function(){syncScroll($("incOutput"),$("incInput"))});
 })();
